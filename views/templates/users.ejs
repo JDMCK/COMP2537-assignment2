@@ -1,0 +1,6 @@
+<li>
+  <%= user.name + ' (' + user.userType + ')' %>
+    <a href="/adminControl?user=<%= JSON.stringify(user) %>">
+      <%= user.userType=='admin' ? 'Demote to User' : 'Promote to Admin' %>
+    </a>
+</li>

@@ -1,0 +1,12 @@
+<%- include('templates/header') %>
+  <div class="content">
+    <h1>Sign In</h1>
+    <form action="/loggingin" method="post">
+      <input type="text" name="email" placeholder="email">
+      <input type="password" name="password" placeholder="password">
+      <button>Submit</button>
+    </form>
+  </div>
+  <p>or</p>
+  <a href="/signup">Signup</a>
+  <%- include('templates/footer') %>

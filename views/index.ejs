@@ -1,8 +1,15 @@
-<%- include('template/header') %>
-  <div class="content">
-    <a href="signup">Signup</a>
-    <br>
-    <br>
-    <a href="login">Login</a>
-  </div>
-  <%- include('template/footer') %>
+<%- include('templates/header') %>
+  <% if (req.session.authenticated) { %>
+    <div class="content">
+      <h1>Welcome, <%= req.session.name %>
+      </h1>
+      <a href="/members">VIP Zone</a>
+      <a href="/logout">Signout</a>
+    </div>
+    <% } else { %>
+      <div class="content">
+        <a href="signup">Signup</a>
+        <a href="login">Login</a>
+      </div>
+      <% } %>
+        <%- include('templates/footer') %>

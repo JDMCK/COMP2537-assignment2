@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const fs = require('fs');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcrypt');
@@ -31,9 +30,9 @@ let database = new MongoClient(atlasURI, { useNewUrlParser: true, useUnifiedTopo
 // Gets a reference to the users collection
 const usersCollection = database.db(mongodb_database).collection('users');
 
-// Establishes a connection to the mongoDB of 'assignmen1'
+// Establishes a connection to the mongoDB of 'assignment2'
 const mongoStore = MongoStore.create({
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/assignment1`,
+  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`,
   crypto: {
     secret: mongodb_session_secret
   }
@@ -50,6 +49,7 @@ const createSession = (req) => {
   req.session.authenticated = true;
   req.session.name = req.body.name;
   req.session.email = req.body.email;
+  req.session.userType = req.body.userType;
   req.session.cookie.maxAge = expireTime;
 };
 
@@ -65,43 +65,32 @@ app.use(session({
   resave: true
 }));
 
+// Validates session
+function sessionValidation(req, res, next) {
+  if (req.session.authenticated)
+    next();
+  else
+    res.redirect('/');
+}
+
+// Determines if current user is an admin
+function adminAuthorization(req, res, next) {
+  if (req.session.userType != 'admin') {
+    res.status(403);
+    res.render("errorMessage", { error: "Not Authorized" });
+  }
+  else
+    next();
+}
+
 // Shows home if user logged in, shows options to login or signup otherwise
 app.get('/', async (req, res) => {
-
-  let html = './views/index.ejs';
-
-  if (req.session.authenticated) {
-    html = `
-    <link rel="stylesheet" href="css">
-    <div class="content">
-      <h1>Welcome, ${req.session.name}</h1>
-      <a href="/members">VIP Zone</a>
-      <br>
-      <br>
-      <a href="/logout">Signout</a>
-    </div>`;
-  }
-
-  res.render(html);
+  res.render('index', { req: req });
 });
 
 // Login page
 app.get('/login', (req, res) => {
-  let html = `
-  <link rel="stylesheet" href="css">
-  <div class="content">
-    <h1>Sign In</h1>
-    <form action="/loggingin" method="post">
-      <input type="text" name="email" placeholder="email">
-      <input type="password" name="password" placeholder="password">
-      <button>Submit</button>
-    </form>
-  </div>
-  <br>
-  <p>or</p>
-  <br>
-  <a href="/signup">Signup</a>`;
-  res.send(html);
+  res.render('login');
 });
 
 app.post('/loggingin', async (req, res) => {
@@ -121,7 +110,7 @@ app.post('/loggingin', async (req, res) => {
     return;
   }
 
-  const result = await usersCollection.find({ email: email }).project({ email: 1, name: 1, password: 1 }).toArray();
+  const result = await usersCollection.find({ email: email }).project({ email: 1, name: 1, userType: 1, password: 1 }).toArray();
 
   // No users with that input email found
   if (result.length != 1) {
@@ -133,6 +122,7 @@ app.post('/loggingin', async (req, res) => {
   const passwordOk = await bcrypt.compare(password, result[0].password)
   if (passwordOk) {
     req.body.name = result[0].name;
+    req.body.userType = result[0].userType;
     createSession(req);
     res.redirect('/members');
   }
@@ -143,13 +133,7 @@ app.post('/loggingin', async (req, res) => {
 
 // If the login info is wrong
 app.get('/invalidLogin', (req, res) => {
-  let html = `
-  <link rel="stylesheet" href="css">
-  <div class="content">
-    <h1>Invalid password</h1>
-    <a href="/login">Try again</a>
-  </div>`;
-  res.send(html);
+  res.render('invalidLogin');
 });
 
 // Logout, destroy cookie and drop session from db
@@ -160,22 +144,7 @@ app.get('/logout', (req, res) => {
 
 // New user signup page
 app.get('/signup', (req, res) => {
-  let html = `
-  <link rel="stylesheet" href="css">
-  <div class="content">
-    <h1>Signup</h1>
-    <form action="/signupSubmit" method="post">
-      <input type="text" name="name" placeholder="name">
-      <input type="password" name="password" placeholder="password">
-      <input type="text" name="email" placeholder="johnsmith@example">
-      <button>Submit</button>
-    </form>
-  </div>
-  <br>
-  <p>or</p>
-  <br>
-  <a href="/login">Login</a>`;
-  res.send(html);
+  res.render('signup');
 });
 
 app.post('/signupSubmit', async (req, res) => {
@@ -194,36 +163,28 @@ app.post('/signupSubmit', async (req, res) => {
 
   const validationResult = schema.validate(req.body);
 
-  let html;
   let emails = await usersCollection.find({ email: email }).project({ email: 1 }).toArray();
 
   if (validationResult.error != null) {
-
-    html = `
-    <link rel="stylesheet" href="css">
-    <div class="content">
-      <h1>${validationResult.error.details[0].message}</h1>
-      <a href="/signup">Try again</a>
-    </div>`;
-    res.send(html);
-
+    res.render('invalidSignup', { error: validationResult.error });
   } else if (emails.length == 0) {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    await usersCollection.insertOne({ email: email, name: name, password: hashedPassword });
+    const userType = 'jesse@jessemckenzie.com' ? 'admin' : 'user';
+    req.body.userType = userType;
+    await usersCollection.insertOne({
+      email: email,
+      name: name,
+      password: hashedPassword,
+      userType: userType
+    });
     createSession(req);
     res.redirect('/members');
   } else {
-    html = `
-      <link rel="stylesheet" href="css">
-      <div class="content">
-        <h1>Sorry, that email is being used</h1>
-        <a href="/signup">Try again</a>
-      </div>`;
-    res.send(html);
+    res.render('existingAccount');
   }
 });
 
-app.get('/members', (req, res) => {
+app.get('/members', sessionValidation, (req, res) => {
 
   const images = [
     {
@@ -240,35 +201,26 @@ app.get('/members', (req, res) => {
     }
   ];
 
-  if (req.session.authenticated) {
-    let image = images[Math.floor(Math.random() * images.length)];
-    let html = `
-    <link rel="stylesheet" href="css">
-    <div class="content">
-      <img src="img/${image.image}" alt="sassy giraffe">
-      <h1>Hello ${req.session.name}, this is a ${image.caption}</h1>
-      <a href="/logout">Signout</a>
-      <br>
-      <br>
-      <a href="/">Home</a>
-    </div>`;
-    res.send(html);
-  } else {
-    res.redirect('/');
-  }
+  let image = images[Math.floor(Math.random() * images.length)];
+  res.render('members', { name: req.session.name, image: image });
 });
 
-app.use('*', (req, res) => {
-  let html = `
-  <link rel="stylesheet" href="css">
-  <div class="content">
-    <h1>404</h1>
-    <p>Page not found.</p>
-    <br>
-    <a href="/">Home</a>
-  </div>`;
+app.get('/admin', sessionValidation, adminAuthorization, async (req, res) => {
+  const result = await usersCollection.find().project({ name: 1, userType: 1, email: 1 }).toArray();
+  res.render("admin", { users: result });
+});
+
+app.get('/adminControl', async (req, res) => {
+  const user = JSON.parse(req.query.user);
+  const newUserType = user.userType == 'admin' ? 'user' : 'admin';
+
+  await usersCollection.updateOne({ email: user.email }, { $set: { userType: newUserType } });
+  res.redirect('/admin');
+});
+
+app.use((req, res) => {
   res.status(404);
-  res.send(html);
+  res.render('404');
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}...`));
