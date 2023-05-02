@@ -1,0 +1,53 @@
+/* General Stylings */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&display=swap');
+
+* {
+  font-family: 'Quicksand', sans-serif;
+  margin: 0;
+}
+
+body {
+  text-align: center;
+}
+
+.content {
+  text-align: center;
+  margin-top: 25vh;
+}
+
+h1 {
+  margin-bottom: 25px;
+}
+
+form {
+  display: inline-block;
+  text-align: center;
+}
+
+input {
+  width: 200px;
+  height: 30px;
+  border: none;
+  border: 1px black solid;
+  border-radius: 10px;
+  padding-left: 10px;
+  display: block;
+  margin-bottom: 25px;
+}
+
+button {
+  width: 100px;
+  height: 35px;
+  background-color: white;
+  border: none;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+a {
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 10px;
+  text-decoration: none;
+  color: black;
+}
