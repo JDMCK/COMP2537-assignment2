@@ -133,7 +133,7 @@ app.post('/loggingin', async (req, res) => {
 
 // If the login info is wrong
 app.get('/invalidLogin', (req, res) => {
-  res.render('invalidLogin');
+  res.render('invalidLogin', { active: '' });
 });
 
 // Logout, destroy cookie and drop session from db
@@ -144,7 +144,7 @@ app.get('/logout', (req, res) => {
 
 // New user signup page
 app.get('/signup', (req, res) => {
-  res.render('signup');
+  res.render('signup', { active: '' });
 });
 
 app.post('/signupSubmit', async (req, res) => {
@@ -166,7 +166,7 @@ app.post('/signupSubmit', async (req, res) => {
   let emails = await usersCollection.find({ email: email }).project({ email: 1 }).toArray();
 
   if (validationResult.error != null) {
-    res.render('invalidSignup', { error: validationResult.error });
+    res.render('invalidSignup', { error: validationResult.error, active: '' });
   } else if (emails.length == 0) {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const userType = email == 'jesse@jessemckenzie.com' ? 'admin' : 'user';
@@ -180,7 +180,7 @@ app.post('/signupSubmit', async (req, res) => {
     createSession(req);
     res.redirect('/members');
   } else {
-    res.render('existingAccount');
+    res.render('existingAccount', { active: '' });
   }
 });
 
