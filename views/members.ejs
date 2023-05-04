@@ -1,11 +1,28 @@
 <%- include('templates/header') %>
-  <div class="content">
-    <img src="img/<%- image.image %>" alt="sassy giraffe">
-    <h1>Hello <%= name %>, this is a <%= image.caption %>
-    </h1>
-    <a href="/logout">Signout</a>
-    <br>
-    <br>
-    <a href="/">Home</a>
+  <style>
+    img {
+      max-height: 400px;
+      max-width: 100%;
+    }
+  </style>
+  <h1>Hello <%= name %>!</h1>
+  <div class="row mb-3 text-center">
+    <div class="col-lg-4">
+      <img src="img/<%- images[0].image %>" alt="adjective animal">
+      <h1>This is a <%= images[0].caption %>
+      </h1>
+    </div>
+    <div class="col-lg-4">
+      <img src="img/<%- images[1].image %>" alt="adjective animal">
+      <h1>This is a <%= images[1].caption %>
+      </h1>
+    </div>
+    <div class="col-lg-4">
+      <img src="img/<%- images[2].image %>" alt="adjective animal">
+      <h1>This is a <%= images[2].caption %>
+      </h1>
+    </div>
   </div>
+  <a class="btn btn-danger" href="/logout">Signout</a>
+  <a class="btn btn-primary" href="/">Home</a>
   <%- include('templates/footer') %>

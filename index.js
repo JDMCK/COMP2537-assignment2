@@ -85,12 +85,12 @@ function adminAuthorization(req, res, next) {
 
 // Shows home if user logged in, shows options to login or signup otherwise
 app.get('/', async (req, res) => {
-  res.render('index', { req: req });
+  res.render('index', { req: req, active: 'home' });
 });
 
 // Login page
 app.get('/login', (req, res) => {
-  res.render('login');
+  res.render('login', { active: 'login' });
 });
 
 app.post('/loggingin', async (req, res) => {
@@ -139,7 +139,7 @@ app.get('/invalidLogin', (req, res) => {
 // Logout, destroy cookie and drop session from db
 app.get('/logout', (req, res) => {
   req.session.destroy();
-  res.redirect('/');
+  res.redirect('/login');
 });
 
 // New user signup page
@@ -169,7 +169,7 @@ app.post('/signupSubmit', async (req, res) => {
     res.render('invalidSignup', { error: validationResult.error });
   } else if (emails.length == 0) {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const userType = 'jesse@jessemckenzie.com' ? 'admin' : 'user';
+    const userType = email == 'jesse@jessemckenzie.com' ? 'admin' : 'user';
     req.body.userType = userType;
     await usersCollection.insertOne({
       email: email,
@@ -198,16 +198,36 @@ app.get('/members', sessionValidation, (req, res) => {
     {
       image: 'penguin.gif',
       caption: 'flying penguin'
+    },
+    {
+      image: 'dog.gif',
+      caption: 'glizzy dog'
+    },
+    {
+      image: 'cat.gif',
+      caption: 'cat jam'
+    },
+    {
+      image: 'lion.gif',
+      caption: 'mighty lion'
     }
   ];
+  const shuffleArray = array => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  }
 
-  let image = images[Math.floor(Math.random() * images.length)];
-  res.render('members', { name: req.session.name, image: image });
+  res.render('members', { name: req.session.name, images: shuffleArray(images), active: 'members' });
 });
 
 app.get('/admin', sessionValidation, adminAuthorization, async (req, res) => {
   const result = await usersCollection.find().project({ name: 1, userType: 1, email: 1 }).toArray();
-  res.render("admin", { users: result });
+  res.render('admin', { users: result, currentUserName: req.session.name, active: 'admin' });
 });
 
 app.get('/adminControl', async (req, res) => {
@@ -220,7 +240,7 @@ app.get('/adminControl', async (req, res) => {
 
 app.use((req, res) => {
   res.status(404);
-  res.render('404');
+  res.render('404', { active: 'error404' });
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}...`));

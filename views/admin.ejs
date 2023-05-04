@@ -1,10 +1,8 @@
 <%- include('templates/header') %>
-  <div class="content">
-    <h1>Users</h1>
-    <ul>
-      <% for (let i=0; i < users.length; i++) { %>
-        <%- include('templates/users', { user: users[i] }) %>
-          <% } %>
-    </ul>
-  </div>
+  <h1>Users</h1>
+  <ul style="display: inline-block;">
+    <% for (let i=0; i < users.length; i++) { %>
+      <%- include('templates/users', { user: users[i], currentUserName: currentUserName }) %>
+        <% } %>
+  </ul>
   <%- include('templates/footer') %>

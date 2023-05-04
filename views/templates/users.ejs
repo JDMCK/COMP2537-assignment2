@@ -1,6 +1,9 @@
-<li>
-  <%= user.name + ' (' + user.userType + ')' %>
-    <a href="/adminControl?user=<%= JSON.stringify(user) %>">
-      <%= user.userType=='admin' ? 'Demote to User' : 'Promote to Admin' %>
-    </a>
+<li class="mb-3">
+  <b>
+    <%= user.name + ' (' + user.userType + ')' %>
+  </b>
+  <a class="btn <%= user.name == currentUserName ? 'disabled' : '' %> btn-<%= user.userType == 'admin' ? 'danger' : 'success' %>"
+    href="/adminControl?user=<%= JSON.stringify(user) %>">
+    <%= user.userType=='admin' ? 'Demote to User' : 'Promote to Admin' %>
+  </a>
 </li>

@@ -1,15 +1,12 @@
 <%- include('templates/header') %>
   <% if (req.session.authenticated) { %>
-    <div class="content">
-      <h1>Welcome, <%= req.session.name %>
-      </h1>
-      <a href="/members">VIP Zone</a>
-      <a href="/logout">Signout</a>
-    </div>
+    <h1>Welcome, <%= req.session.name %>
+    </h1>
+    <a class="btn btn-primary" href="/members">VIP Zone</a>
+    <a class="btn btn-danger" href="/logout">Signout</a>
     <% } else { %>
-      <div class="content">
-        <a href="signup">Signup</a>
-        <a href="login">Login</a>
-      </div>
+      <h1>Welcome!</h1>
+      <a class="btn btn-primary" href="signup">Signup</a>
+      <a class="btn btn-secondary" href="login">Login</a>
       <% } %>
         <%- include('templates/footer') %>

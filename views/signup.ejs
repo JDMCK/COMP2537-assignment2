@@ -1,13 +1,32 @@
 <%- include('templates/header') %>
-  <div class="content">
-    <h1>Signup</h1>
+  <style>
+    input {
+      border: 1px solid black !important;
+    }
+
+    .center {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+  <h1>Signup</h1>
+  <div class="center">
     <form action="/signupSubmit" method="post">
-      <input type="text" name="name" placeholder="name">
-      <input type="password" name="password" placeholder="password">
-      <input type="text" name="email" placeholder="johnsmith@example">
-      <button>Submit</button>
+      <div class="form-group">
+        <label for="InputName">Name</label>
+        <input type="text" class="form-control" aria-describedby="nameHelp" placeholder="Enter name" name="name">
+      </div>
+      <div class="form-group">
+        <label for="InputPassword">Password</label>
+        <input type="password" class="form-control" placeholder="Password" name="password">
+      </div>
+      <div class="form-group">
+        <label for="InputEmail">Email address</label>
+        <input type="email" class="form-control" aria-describedby="emailHelp" placeholder="Enter email" name="email">
+      </div>
+      <button type="submit" class="btn btn-success mt-3">Submit</button>
     </form>
   </div>
   <p>or</p>
-  <a href="/login">Login</a>
+  <a class="btn btn-secondary" href="/login">Login</a>
   <%- include('templates/footer') %>
