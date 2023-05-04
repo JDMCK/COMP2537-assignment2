@@ -77,7 +77,7 @@ function sessionValidation(req, res, next) {
 function adminAuthorization(req, res, next) {
   if (req.session.userType != 'admin') {
     res.status(403);
-    res.render("errorMessage", { error: "Not Authorized" });
+    res.render("errorMessage", { error: "Not Authorized", active: '' });
   }
   else
     next();
