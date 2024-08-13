@@ -1,5 +1,5 @@
 # Members Only
-Members Only is a project I completed during my second semester that implemented the concepts of password encryption, cookies, authenticaion, input sanitation, server architecture, and dynamically generated page content. I did this using ejs, css, and Node.js.
+Members Only is a project I completed during my second semester that implemented the concepts of password encryption, cookies, authenticaion, input sanitation, server architecture, user permissions, and dynamically generated page content. I did this using ejs, css, and Node.js.
 
 ![image](https://github.com/user-attachments/assets/be16d73d-a57c-4aed-9694-f3c8d968ff9d)
 
